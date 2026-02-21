@@ -1,0 +1,10 @@
+device ATSAM3X8E
+if SWD
+speed 4000
+r
+h
+loadfile C:\work-2\due2\build\due_bootloader.elf
+loadfile C:\work-2\due2\build\due_app.elf
+r
+g
+q

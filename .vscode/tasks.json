@@ -1,0 +1,96 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "clear(due2)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-E",
+        "remove_directory",
+        "${workspaceFolder:due2}/build"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "configure (due2)",
+      "type": "shell",
+      "dependsOn": "clear(due2)",
+      "command": "cmake",
+      "args": [
+        "--fresh",
+        "-G",
+        "Ninja",
+        "-S",
+        ".",
+        "-B",
+        "build",
+        "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${workspaceFolder:due2}/cmake/arm-none-eabi.cmake",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build (due2)",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "${workspaceFolder:due2}/build", "--target", "all"],
+      "problemMatcher": ["$gcc"],
+      "group": "build"
+    },
+    {
+      "label": "Flash (J-Link, SAM3X8E, Due2)",
+      "type": "shell",
+      "dependsOn": "Build (due2)",
+      "command": "JLink.exe",
+      "args": [
+        "-NoGui",
+        "1",
+        "-CommandFile",
+        "${workspaceFolder:due2}/tools/jlink_flash_sam3x8e.jlink"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Flash APP (J-Link, SAM3X8E, Due2)",
+      "type": "shell",
+      "dependsOn": "Build (due2)",
+      "command": "JLink.exe",
+      "args": [
+        "-NoGui",
+        "1",
+        "-CommandFile",
+        "${workspaceFolder:due2}/tools/jlink_flash_sam3x8e_app.jlink"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Flash Bootloader (J-Link, SAM3X8E, Due2)",
+      "type": "shell",
+      "dependsOn": "Build (due2)",
+      "command": "JLink.exe",
+      "args": [
+        "-NoGui",
+        "1",
+        "-CommandFile",
+        "${workspaceFolder:due2}/tools/jlink_flash_sam3x8e_bootloader.jlink"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Flash Full (BL+APP, J-Link, SAM3X8E, Due2)",
+      "type": "shell",
+      "dependsOn": "Build (due2)",
+      "command": "JLink.exe",
+      "args": [
+        "-NoGui",
+        "1",
+        "-CommandFile",
+        "${workspaceFolder:due2}/tools/jlink_flash_sam3x8e_full.jlink"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}
+

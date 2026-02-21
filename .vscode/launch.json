@@ -1,0 +1,57 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug (J-Link, ATSAM3X8E)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "jlink",
+
+      "cwd": "${workspaceFolder:due2}",
+      "executable": "${workspaceFolder:due2}/build/due_app.elf",
+
+      "device": "ATSAM3X8E",
+      "interface": "swd",
+
+      "serverpath": "C:\\JLink\\JLinkGDBServerCL.exe",
+
+      "armToolchainPath": "C:\\ArmGNU\\bin",
+      "gdbPath": "C:\\ArmGNU\\bin\\arm-none-eabi-gdb.exe",
+
+      "serverArgs": [
+        "-speed", "4000",
+        "-singlerun"
+      ],
+
+      "runToEntryPoint": "main",
+      "preLaunchTask": "Build (due2)",
+      "svdFile": "${workspaceFolder:due2}/svd/SAM3X8E.svd"
+    },
+    {
+      "name": "Debug BL (J-Link, ATSAM3X8E)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "jlink",
+
+      "cwd": "${workspaceFolder:due2}",
+      "executable": "${workspaceFolder:due2}/build/due_bootloader.elf",
+
+      "device": "ATSAM3X8E",
+      "interface": "swd",
+
+      "serverpath": "C:\\JLink\\JLinkGDBServerCL.exe",
+
+      "armToolchainPath": "C:\\ArmGNU\\bin",
+      "gdbPath": "C:\\ArmGNU\\bin\\arm-none-eabi-gdb.exe",
+
+      "serverArgs": [
+        "-speed", "4000",
+        "-singlerun"
+      ],
+
+      "runToEntryPoint": "main",
+      "preLaunchTask": "Build (due2)",
+      "svdFile": "${workspaceFolder:due2}/svd/SAM3X8E.svd"
+    }
+  ]
+}
