@@ -26,7 +26,7 @@
         "-B",
         "build",
         "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=${workspaceFolder:due2}/cmake/arm-none-eabi.cmake",
-        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_BUILD_TYPE=Debug",
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
       ],
       "problemMatcher": []
@@ -34,6 +34,7 @@
     {
       "label": "Build (due2)",
       "type": "shell",
+      "dependsOn": "configure (due2)",
       "command": "cmake",
       "args": ["--build", "${workspaceFolder:due2}/build", "--target", "all"],
       "problemMatcher": ["$gcc"],
@@ -93,4 +94,3 @@
     }
   ]
 }
-

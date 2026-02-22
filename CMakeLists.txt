@@ -3,6 +3,8 @@ project(due2 C ASM)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_FLAGS_DEBUG "-Og -g3")
+set(CMAKE_ASM_FLAGS_DEBUG "-g3")
 
 set(MCPU "-mcpu=cortex-m3")
 set(MTHUMB "-mthumb")
@@ -80,4 +82,3 @@ add_due_image(due_bootloader
   "${CMAKE_SOURCE_DIR}/linker/sam3x8e_bootloader.ld"
   ${BOOTLOADER_SOURCES}
 )
-
