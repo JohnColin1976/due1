@@ -8,6 +8,7 @@ set(CMAKE_ASM_FLAGS_DEBUG "-g3")
 
 set(MCPU "-mcpu=cortex-m3")
 set(MTHUMB "-mthumb")
+option(DUE_ENABLE_TFT_DEMO "Enable TFT demo path in due_app" OFF)
 
 set(COMMON_SOURCES
   ${CMAKE_SOURCE_DIR}/cmsis/SAM3X/Device/Source/system_SAM3XA.c
@@ -18,6 +19,7 @@ set(APP_SOURCES
   ${CMAKE_SOURCE_DIR}/src/main.c
   ${CMAKE_SOURCE_DIR}/src/init.c
   ${CMAKE_SOURCE_DIR}/src/uart.c
+  ${CMAKE_SOURCE_DIR}/src/tft_arduino_demo.c
   ${CMAKE_SOURCE_DIR}/params/param.c
 )
 
@@ -77,6 +79,11 @@ add_due_image(due_app
   "${CMAKE_SOURCE_DIR}/linker/sam3x8e_app.ld"
   ${APP_SOURCES}
 )
+
+target_compile_definitions(due_app PRIVATE ENABLE_TFT)
+if(DUE_ENABLE_TFT_DEMO)
+  target_compile_definitions(due_app PRIVATE ENABLE_TFT_DEMO)
+endif()
 
 add_due_image(due_bootloader
   "${CMAKE_SOURCE_DIR}/linker/sam3x8e_bootloader.ld"

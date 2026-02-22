@@ -1,8 +1,55 @@
 #include "sam3xa.h"
 #include "init.h"
+#include "tft_cfg.h"
 
 // 0 = normal UART polarity, 1 = inverted data polarity (USART0 INVDATA)
 #define UART_INVERT 0
+#define TFT_SPI_WAIT_TIMEOUT 1000000u
+
+static uint8_t g_tft_cs_active = 0u;
+static uint8_t g_tft_spi_error = 0u;
+
+static void tft_delay_cycles(volatile uint32_t cycles)
+{
+    while (cycles-- > 0u) {
+        __asm__ volatile ("nop");
+    }
+}
+
+static void tft_delay_ms(uint32_t ms)
+{
+    while (ms-- > 0u) {
+        /* ~1ms @ 84MHz, rough delay for reset timing */
+        tft_delay_cycles(21000u);
+    }
+}
+
+static uint32_t tft_spi_calc_scbr(void)
+{
+    uint32_t target_hz = TFT_CFG_SPI_START_HZ;
+    uint32_t mck_hz = TFT_CFG_MCK_HZ;
+    uint32_t scbr;
+
+    if (target_hz > TFT_CFG_SPI_MAX_HZ) {
+        target_hz = TFT_CFG_SPI_MAX_HZ;
+    }
+    if (target_hz == 0u) {
+        target_hz = 1u;
+    }
+    if (mck_hz == 0u) {
+        mck_hz = 84000000u;
+    }
+
+    scbr = (mck_hz + target_hz - 1u) / target_hz; /* ceil(mck/target) */
+    if (scbr < 1u) {
+        scbr = 1u;
+    }
+    if (scbr > 255u) {
+        scbr = 255u;
+    }
+
+    return scbr;
+}
 
 /* *****************************************************************
     INIT BLOCK
@@ -135,4 +182,120 @@ void dacc_init(void) {
 
   // Разрешить каналы
   DACC->DACC_CHER = DACC_CHER_CH0 | DACC_CHER_CH1;
+}
+
+void tft_io_init(void)
+{
+    uint32_t scbr = tft_spi_calc_scbr();
+
+    /* Clocks for PIOA/PIOC/SPI0 */
+    PMC->PMC_PCER0 = (1u << ID_PIOA);
+    PMC->PMC_PCER0 = (1u << ID_PIOC);
+    PMC->PMC_PCER0 = (1u << ID_SPI0);
+
+    /* PA26(MOSI), PA27(SPCK), PA25(MISO) -> Peripheral A */
+    TFT_SPI_PIO->PIO_PDR = TFT_SPI_MOSI_MASK | TFT_SPI_SCK_MASK | TFT_SPI_MISO_MASK;
+    TFT_SPI_PIO->PIO_ABSR &= ~(TFT_SPI_MOSI_MASK | TFT_SPI_SCK_MASK | TFT_SPI_MISO_MASK);
+
+    /* CS on PA28 and mirrored CS on PC29 as GPIO outputs, default high */
+    TFT_SPI_PIO->PIO_PER = TFT_SPI_CS_MASK;
+    TFT_SPI_PIO->PIO_OER = TFT_SPI_CS_MASK;
+    TFT_SPI_PIO->PIO_SODR = TFT_SPI_CS_MASK;
+
+    TFT_CS2_PIO->PIO_PER = TFT_CS2_MASK;
+    TFT_CS2_PIO->PIO_OER = TFT_CS2_MASK;
+    TFT_CS2_PIO->PIO_SODR = TFT_CS2_MASK;
+
+    /* PC24(DC), PC25(RST) -> GPIO output, default high */
+    TFT_DC_PIO->PIO_PER = TFT_DC_MASK;
+    TFT_DC_PIO->PIO_OER = TFT_DC_MASK;
+    TFT_DC_PIO->PIO_SODR = TFT_DC_MASK;
+
+    TFT_RST_PIO->PIO_PER = TFT_RST_MASK;
+    TFT_RST_PIO->PIO_OER = TFT_RST_MASK;
+    TFT_RST_PIO->PIO_SODR = TFT_RST_MASK;
+
+    /* SPI0 reset and master init, Mode 0, 8-bit, CS handled by GPIO */
+    SPI0->SPI_CR = SPI_CR_SWRST;
+    SPI0->SPI_CR = SPI_CR_SWRST;
+
+    SPI0->SPI_MR = SPI_MR_MSTR | SPI_MR_MODFDIS;
+    SPI0->SPI_CSR[0] = SPI_CSR_NCPHA | SPI_CSR_BITS_8_BIT | SPI_CSR_SCBR(scbr);
+
+    SPI0->SPI_CR = SPI_CR_SPIEN;
+    g_tft_cs_active = 0u;
+    g_tft_spi_error = 0u;
+}
+
+void tft_hw_reset(void)
+{
+    TFT_RST_PIO->PIO_CODR = TFT_RST_MASK;
+    tft_delay_ms(20u);
+    TFT_RST_PIO->PIO_SODR = TFT_RST_MASK;
+    tft_delay_ms(20u);
+}
+
+void tft_cs_low(void)
+{
+    TFT_SPI_PIO->PIO_CODR = TFT_SPI_CS_MASK;
+    TFT_CS2_PIO->PIO_CODR = TFT_CS2_MASK;
+    g_tft_cs_active = 1u;
+}
+
+void tft_cs_high(void)
+{
+    uint32_t timeout = TFT_SPI_WAIT_TIMEOUT;
+
+    while ((SPI0->SPI_SR & SPI_SR_TXEMPTY) == 0u) {
+        if (timeout-- == 0u) {
+            g_tft_spi_error = 1u;
+            break;
+        }
+    }
+    TFT_SPI_PIO->PIO_SODR = TFT_SPI_CS_MASK;
+    TFT_CS2_PIO->PIO_SODR = TFT_CS2_MASK;
+    g_tft_cs_active = 0u;
+}
+
+void tft_dc_cmd(void)
+{
+    TFT_DC_PIO->PIO_CODR = TFT_DC_MASK;
+}
+
+void tft_dc_data(void)
+{
+    TFT_DC_PIO->PIO_SODR = TFT_DC_MASK;
+}
+
+void tft_spi_tx8(uint8_t v)
+{
+    uint32_t timeout = TFT_SPI_WAIT_TIMEOUT;
+
+    while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0u) {
+        if (timeout-- == 0u) {
+            g_tft_spi_error = 1u;
+            return;
+        }
+    }
+    SPI0->SPI_TDR = SPI_TDR_TD(v);
+    timeout = TFT_SPI_WAIT_TIMEOUT;
+    while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0u) {
+        if (timeout-- == 0u) {
+            g_tft_spi_error = 1u;
+            return;
+        }
+    }
+    (void)SPI0->SPI_RDR;
+
+    (void)g_tft_cs_active;
+}
+
+void tft_spi_clear_error(void)
+{
+    g_tft_spi_error = 0u;
+}
+
+uint8_t tft_spi_has_error(void)
+{
+    return g_tft_spi_error;
 }

@@ -3,7 +3,7 @@ if SWD
 speed 4000
 r
 h
-loadfile C:\work-2\due2\build\due_app.elf
+loadfile build/due_app.elf
 r
 g
 q

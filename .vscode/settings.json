@@ -1,11 +1,11 @@
 {
   "cmake.configureSettings": {
-    "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder:due2}/cmake/arm-none-eabi.cmake",
+    "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/cmake/arm-none-eabi.cmake",
     "CMAKE_EXPORT_COMPILE_COMMANDS": "TRUE"
   },
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "C_Cpp.default.compileCommands": "${workspaceFolder:due2}/build/compile_commands.json",
-  "C_Cpp.default.compilerPath": "C:/ArmGNU/bin/arm-none-eabi-gcc.exe",
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+  "C_Cpp.default.compilerPath": "/usr/bin/arm-none-eabi-gcc",
   "C_Cpp.default.intelliSenseMode": "gcc-arm",
-  "cmake.buildDirectory": "${workspaceFolder:due2}/build"
+  "cmake.buildDirectory": "${workspaceFolder}/build"
 }

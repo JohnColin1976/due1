@@ -1,0 +1,23 @@
+# ninja log v5
+1	62	1771783650727405566	CMakeFiles/due_app.dir/src/tft_arduino_demo.c.obj	c0c4fd1f119467fb
+1	40	1771775194986646319	CMakeFiles/due_bootloader.dir/src/init.c.obj	10db5158c3a543e9
+40	226	1771775195166312930	due_bootloader.elf	db0b447a3234f941
+1	55	1771782884049712676	CMakeFiles/due_app.dir/src/tft_ili9486.c.obj	193c6e2dd169570e
+1	41	1771775208608309067	CMakeFiles/due_app.dir/cmsis/SAM3X/Device/Source/system_SAM3XA.c.obj	6959ca82ce11c36a
+1	164	1771783514876250759	CMakeFiles/due_app.dir/src/main.c.obj	6249e3cec4c4bf37
+1	83	1771775055214172721	CMakeFiles/due_bootloader.dir/src/bootloader/bl_main.c.obj	456a75285f322833
+2	240	1771783799719485414	build.ninja	2d0308f92300dda9
+1	31	1771774861125609634	CMakeFiles/due_bootloader.dir/cmsis/SAM3X/Device/Source/system_SAM3XA.c.obj	78d38124cfa8955b
+1	41	1771781795478037397	CMakeFiles/due_app.dir/src/init.c.obj	596e5cfa70a178c5
+1	36	1771775208604642403	CMakeFiles/due_app.dir/startup/startup_sam3x8e.c.obj	87ebcc6dc5e55a80
+62	247	1771783650910037095	due_app.elf	b666bb3083163c27
+2	38	1771775208604642403	CMakeFiles/due_app.dir/src/uart.c.obj	97d4fcc61ac71307
+2	17	1771775208582642408	CMakeFiles/due_app.dir/params/param.c.obj	c1f313c5254c0cc7
+1	32	1771774861129276300	CMakeFiles/due_bootloader.dir/startup/startup_sam3x8e.c.obj	4f7452b054e44ae6
+1	19	1771782884013066505	CMakeFiles/due_app.dir/src/tft_gfx.c.obj	f3b145e3ebf1efe0
+1	197	1771783799719485414	build.ninja	2d0308f92300dda9
+1	69	1771783799792759603	CMakeFiles/due_app.dir/src/main.c.obj	6249e3cec4c4bf37
+69	259	1771783799983272508	due_app.elf	802ee1adabec84aa
+1	41	1771783800034564442	CMakeFiles/due_bootloader.dir/src/init.c.obj	10db5158c3a543e9
+1	89	1771783800082192667	CMakeFiles/due_bootloader.dir/src/bootloader/bl_main.c.obj	456a75285f322833
+89	284	1771783800272705571	due_bootloader.elf	db0b447a3234f941

@@ -1,6 +1,9 @@
 #include "sam3xa.h"
 #include "init.h"
 #include "boot_cfg.h"
+#ifdef ENABLE_TFT_DEMO
+#include "tft_arduino_demo.h"
+#endif
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -33,6 +36,9 @@ static bool g_rx_in_frame = false;
 volatile uint32_t g_ms_tick = 0u;
 
 static void app_dbg_heartbeat_poll(void);
+#ifdef ENABLE_TFT_DEMO
+static void tft_demo_run(void);
+#endif
 
 void SysTick_Handler(void)
 {
@@ -60,6 +66,13 @@ static void uart_dbg_puts(const char *s)
         uart_dbg_putc((uint8_t)*s++);
     }
 }
+
+#ifdef ENABLE_TFT_DEMO
+void tft_diag_puts(const char *s)
+{
+    uart_dbg_puts(s);
+}
+#endif
 
 static void uart_dbg_put_u32(uint32_t v)
 {
@@ -418,6 +431,16 @@ static void app_dbg_heartbeat_poll(void)
     }
 }
 
+#ifdef ENABLE_TFT_DEMO
+static void tft_demo_run(void)
+{
+    uart_dbg_puts("TFT:IO_INIT\r\n");
+    tft_arduino_demo_run();
+    uart_dbg_puts("TFT:INIT_OK\r\n");
+    uart_dbg_puts("TFT:FILL_OK\r\n");
+}
+#endif
+
 int main(void)
 {
     uart_init();      // USART0 on PA10/PA11 (RX input)
@@ -427,6 +450,9 @@ int main(void)
     if (SysTick_Config(SystemCoreClock / 1000u) != 0u) {
         uart_dbg_puts("APP systick init error\r\n");
     }
+#ifdef ENABLE_TFT_DEMO
+    tft_demo_run();
+#endif
 
     while (1) {
         uint8_t b = 0u;
